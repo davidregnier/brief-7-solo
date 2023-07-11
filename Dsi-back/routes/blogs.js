@@ -1,7 +1,10 @@
-const { connection } = require('../server');
+const { connection } = require('../server'); // Importe la connexion à la base de données à partir du module '../server'
 
 const path = (app) => {
+  // Définition des différentes routes
+
   app.get('/blogs', (req, res) => {
+    // Route GET pour récupérer tous les blogs
     connection.query('SELECT * FROM blogs;', [], (err, results) => {
       if (err) {
         console.error(err);
@@ -13,6 +16,7 @@ const path = (app) => {
   });
 
   app.get('/blogs/:id', (req, res) => {
+    // Route GET pour récupérer un blog spécifique en fonction de son ID
     const id_blog = req.params.id;
     connection.query('SELECT * FROM blogs WHERE id_blog = ?;', [id_blog], (err, results) => {
       if (err) {
@@ -25,6 +29,7 @@ const path = (app) => {
   });
 
   app.get('/users/:id', (req, res) => {
+    // Route GET pour récupérer un utilisateur spécifique en fonction de son ID
     const id_user = req.params.id;
     connection.query('SELECT * FROM users WHERE id_user = ?;', [id_user], (err, results) => {
       if (err) {
@@ -37,6 +42,7 @@ const path = (app) => {
   });
 
   app.post('/blogs', (req, res) => {
+    // Route POST pour ajouter un nouveau blog
     const {
       content_blog,
       date_blog,
@@ -60,6 +66,7 @@ const path = (app) => {
   });
 
   app.put('/blogs/:id', (req, res) => {
+    // Route PUT pour mettre à jour un blog existant
     const { id } = req.params;
     const { title_blog, picture_path_blog, content_blog, date_blog, id_user } = req.body;
 
@@ -71,7 +78,7 @@ const path = (app) => {
     // Effectuer la requête de mise à jour dans la base de données
     const query =
       "UPDATE blogs SET title_blog = ?, picture_path_blog = ?, content_blog = ?, date_blog = STR_TO_DATE(?, '%Y-%d-%m'), id_user = ? WHERE id_blog = ?";
-    // on utilise STR_TO_DATE() pour convertir la valeur de date_blog en un format de date compréhensible par MySQL
+    // On utilise STR_TO_DATE() pour convertir la valeur de date_blog en un format de date compréhensible par MySQL
     const values = [title_blog, picture_path_blog, content_blog, date_blog, id_user, id];
 
     // Exécuter la requête SQL
@@ -79,7 +86,7 @@ const path = (app) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ error: "Erreur lors de la mise à jour du blog" });
-     } else {
+      } else {
         // Vérifier si des lignes ont été modifiées
         if (result.affectedRows === 0) {
           return res.status(404).json({ error: "Blog non trouvé" });
@@ -92,6 +99,7 @@ const path = (app) => {
   });
 
   app.delete('/blogs/:id', (req, res) => {
+    // Route DELETE pour supprimer un blog existant
     const id_blog = req.params.id;
     connection.query('DELETE FROM blogs WHERE id_blog = ?', [id_blog], (err, result) => {
       if (err) {
@@ -108,4 +116,4 @@ const path = (app) => {
   });
 };
 
-module.exports = path;
+module.exports = path; // Exporte la fonction path

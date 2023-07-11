@@ -1,12 +1,15 @@
-const { connection } = require('../server');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const { connection } = require('../server'); // Importe la connexion à la base de données à partir du module '../server'
+const bcrypt = require('bcrypt'); // Importe le module de hachage bcrypt
+const jwt = require('jsonwebtoken'); // Importe le module JWT pour la génération de tokens
 
-const saltRounds = 10;
-const secretKey = 'yourSecretKey';
+const saltRounds = 10; // Nombre de tours de chiffrement pour le hachage des mots de passe
+const secretKey = 'yourSecretKey'; // Clé secrète utilisée pour la génération du token JWT
 
 const path = (app) => {
+  // Définition des différentes routes
+
   app.get('/users', (req, res) => {
+    // Route GET pour récupérer tous les utilisateurs
     connection.query('SELECT * FROM users;', (err, results) => {
       if (err) {
         console.error(err);
@@ -18,6 +21,7 @@ const path = (app) => {
   });
 
   app.get('/users/:id', (req, res) => {
+    // Route GET pour récupérer un utilisateur spécifique en fonction de son ID
     const id_user = req.params.id;
     connection.query('SELECT * FROM users WHERE id_user = ?;', [id_user], (err, results) => {
       if (err) {
@@ -31,6 +35,7 @@ const path = (app) => {
   });
 
   app.post('/users', (req, res) => {
+    // Route POST pour ajouter un nouvel utilisateur
     const { id_user_contact, password_user, role_user } = req.body;
     const hashedPassword = hashPassword(password_user);
 
@@ -49,6 +54,7 @@ const path = (app) => {
   });
 
   app.patch('/users/:id', (req, res) => {
+    // Route PATCH pour mettre à jour un utilisateur existant
     const id_user = req.params.id;
     const new_user = req.body.new_user;
 
@@ -71,6 +77,7 @@ const path = (app) => {
   });
 
   app.delete('/users/:id', (req, res) => {
+    // Route DELETE pour supprimer un utilisateur existant
     const id_user = req.params.id;
     connection.query('DELETE FROM users WHERE id_user = ?', [id_user], (err, result) => {
       if (err) {
@@ -87,6 +94,7 @@ const path = (app) => {
   });
 
   app.post('/users/login', (req, res) => {
+    // Route POST pour gérer la connexion d'un utilisateur
     const { id_user_contact, password_user } =req.body;
 
     connection.query('SELECT * FROM users WHERE id_user_contact = ?;', [id_user_contact], (err, results) => {
@@ -113,14 +121,17 @@ const path = (app) => {
   });
 };
 
+// Fonction pour hacher le mot de passe
 const hashPassword = (password) => {
   return bcrypt.hashSync(password, saltRounds);
 };
 
+// Fonction pour comparer le mot de passe avec le mot de passe haché
 const comparePassword = (password, hashedPassword) => {
   return bcrypt.compareSync(password, hashedPassword);
 };
 
+// Fonction pour générer un token JWT
 const generateToken = (user) => {
   const payload = {
     userId: user.id_user
@@ -129,4 +140,4 @@ const generateToken = (user) => {
   return jwt.sign(payload, secretKey);
 };
 
-module.exports = path;
+module.exports = path; // Exporte la fonction path
